@@ -11,12 +11,14 @@ CrossPromoKit은 원격 JSON 카탈로그를 사용하여 iOS 앱 간 원활한 
 ## 주요 기능
 
 - **SwiftUI 네이티브**: 설정 화면에 바로 삽입 가능한 `MoreAppsView` 컴포넌트
+- **홈 화면 카드**: 한 번에 앱 하나를 소개하는 `CrossPromoCard`, 노출 규칙은 원격으로 조정
 - **SKOverlay 통합**: 마찰 없는 앱 발견을 위한 인앱 App Store 오버레이
 - **원격 구성**: GitHub, CDN 등 어디서나 호스팅 가능한 JSON 기반 앱 카탈로그
 - **캐시 우선 로딩**: 24시간이 지나지 않은 캐시는 네트워크 요청 없이 그대로 사용하고, 네트워크 요청은 캐시 → 빈 상태로 폴백
 - **분석 지원**: 노출 및 탭 이벤트를 위한 델리게이트 기반 이벤트 추적
 - **프로모션 규칙**: 앱별 프로모션 대상을 제어하는 커스텀 규칙
-- **다국어 지원**: 내장 UI 문자열 지역화(영어, 한국어, 일본어) 및 카탈로그 태그라인 지역화
+- **다국어 지원**: 내장 UI 문자열 7개 언어 지역화 및 카탈로그 태그라인 지역화
+- **개인정보 매니페스트**: `PrivacyInfo.xcprivacy` 포함 — 추적 없음, 수집 데이터 없음
 - **Swift 6.0**: Sendable 타입으로 완전한 엄격 동시성 준수
 
 ## 데모
@@ -50,18 +52,14 @@ SPM을 통해 CrossPromoKit을 프로젝트에 추가하세요:
 
 ```swift
 dependencies: [
-    .package(url: "https://github.com/yoonhg84/CrossPromoKit.git", branch: "main")
+    .package(url: "https://github.com/yoonhg84/CrossPromoKit.git", from: "1.0.0")
 ]
 ```
 
-아직 태그된 릴리스가 없어 `from: "1.0.0"` 같은 버전 요구사항은 해석되지 않습니다.
-지금은 브랜치(또는 `revision:`으로 특정 커밋)를 지정하세요. 버전 태그가 생기면
-`.package(url: "https://github.com/yoonhg84/CrossPromoKit.git", from: "x.y.z")`로
-바꾸면 됩니다.
-
 또는 Xcode에서: File → Add Package Dependencies →
-`https://github.com/yoonhg84/CrossPromoKit.git` 입력 후 **Branch** 규칙으로 `main`
-선택.
+`https://github.com/yoonhg84/CrossPromoKit.git` 입력 후 **Up to Next Major Version**
+규칙으로 `1.0.0` 선택. 릴리스 노트는
+[Releases](https://github.com/yoonhg84/CrossPromoKit/releases) 페이지에 있습니다.
 
 ## 빠른 시작
 
@@ -415,6 +413,28 @@ enum PromoEvent {
 
 언어를 추가하려면 Xcode에서 `Localizable.xcstrings`를 열어 로케일을 추가하고 항목을
 번역하면 됩니다. 코드 변경은 필요 없습니다.
+
+## 개인정보
+
+패키지에는 개인정보 매니페스트(`Sources/CrossPromoKit/Resources/PrivacyInfo.xcprivacy`)가
+들어 있고, Xcode가 앱의 개인정보 리포트에 합쳐 줍니다.
+
+- **추적 없음**, 추적 도메인 없음.
+- **수집 데이터 유형 없음.** `PromoEvent`는 `PromoEventDelegate`로 넘기기만 하고 패키지는
+  아무것도 저장·전송하지 않습니다. 분석 SDK가 그 이벤트로 하는 일은 앱 자체 매니페스트에
+  선언하세요.
+- **Required Reason API:** UserDefaults, 사유 `CA92.1` — 카탈로그 캐시와 카드 카운터
+  (`CrossPromoKit.card.*`: 실행 횟수, 첫 실행일, 마지막 노출 앱·시각, 앱별 닫음 기한).
+
+앱의 개인정보 처리방침을 쓸 때는 실제로 오가는 것을 참고하세요.
+
+- `recordLaunch(config:)`와 `MoreAppsView`는 캐시가 없거나 24시간이 지났을 때만
+  카탈로그(`jsonURL`)를 요청하고, 아이콘은 각 `iconURL`에서 받습니다. 식별자는 담지 않지만 기기 IP와 표준
+  User-Agent가 해당 호스트에 전달됩니다.
+- 설치 여부 확인(카탈로그 `urlScheme`에 대한 `canOpenURL`)은 기기에서만 하고 결과를
+  어디에도 보내지 않습니다.
+- 받기를 누르면 캠페인 토큰 `cross-card-<호스트>`와 카탈로그의 `providerToken`을 붙여
+  App Store를 엽니다. Apple이 App Analytics에서 유입을 집계합니다.
 
 ## 라이선스
 

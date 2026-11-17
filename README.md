@@ -6,17 +6,19 @@ A lightweight Swift SDK for cross-promoting your iOS apps within your app portfo
 
 ## Overview
 
-CrossPromoKit enables seamless cross-promotion between your iOS apps using a remote JSON catalog. It provides a ready-to-use SwiftUI view that displays your other apps with native App Store integration via SKOverlay.
+CrossPromoKit enables seamless cross-promotion between your iOS apps using a remote JSON catalog. It provides a ready-to-use SwiftUI list of your other apps and a dismissible home-screen card, both with native App Store integration via SKOverlay.
 
 ## Features
 
 - **SwiftUI Native**: Drop-in `MoreAppsView` component for your settings screen
+- **Home-Screen Card**: `CrossPromoCard` introduces one app at a time, with remotely tuned display rules
 - **SKOverlay Integration**: In-app App Store overlay for frictionless discovery
 - **Remote Configuration**: JSON-based app catalog hosted anywhere (GitHub, CDN, etc.)
 - **Cache-First Loading**: A cache younger than 24 hours is served without a network request; a fetch falls back to Cache → Empty State
 - **Analytics Ready**: Delegate-based event tracking for impressions and taps
 - **Promo Rules**: Control which apps promote which with customizable rules
-- **Localization**: Localized UI strings (English, Korean, Japanese) plus localized catalog taglines
+- **Localization**: Localized UI strings in 7 languages plus localized catalog taglines
+- **Privacy Manifest**: Ships `PrivacyInfo.xcprivacy` — no tracking, no collected data
 - **Swift 6.0**: Full strict concurrency compliance with Sendable types
 
 ## Demo
@@ -50,18 +52,14 @@ Add CrossPromoKit to your project via SPM:
 
 ```swift
 dependencies: [
-    .package(url: "https://github.com/yoonhg84/CrossPromoKit.git", branch: "main")
+    .package(url: "https://github.com/yoonhg84/CrossPromoKit.git", from: "1.0.0")
 ]
 ```
 
-The repository has no tagged release yet, so a version requirement such as
-`from: "1.0.0"` cannot be resolved — depend on a branch (or a specific commit via
-`revision:`) for now. Once a version is tagged, switch to
-`.package(url: "https://github.com/yoonhg84/CrossPromoKit.git", from: "x.y.z")`.
-
 Or in Xcode: File → Add Package Dependencies → enter
-`https://github.com/yoonhg84/CrossPromoKit.git` and choose the **Branch** rule with
-`main`.
+`https://github.com/yoonhg84/CrossPromoKit.git` and choose **Up to Next Major
+Version** from `1.0.0`. Release notes are on the
+[Releases](https://github.com/yoonhg84/CrossPromoKit/releases) page.
 
 ## Quick Start
 
@@ -403,12 +401,35 @@ enum PromoEvent {
 
 Two things are localized independently:
 
-- **Catalog content** (`tagline`) — supplied by your JSON, keyed by language code: `en` is required, `ko` and `ja` are optional, and a missing match for the device locale falls back to English. `category` is *not* localized — it is a plain string rendered exactly as written, so showing different category text per language means serving separate catalogs.
-- **Built-in UI strings** (empty states, retry/cancel buttons, the App Store overlay error alert, VoiceOver labels) — shipped inside the package as a String Catalog (`Sources/CrossPromoKit/Resources/Localizable.xcstrings`), so they stay localized regardless of the host app's bundle.
+- **Catalog content** (`tagline`) — supplied by your JSON, keyed by language code: `en` is required, `ko`, `ja`, `ar`, `de`, `es` and `th` are optional, and a missing match for the device locale falls back to English. `category` is *not* localized — it is a plain string rendered exactly as written, so showing different category text per language means serving separate catalogs.
+- **Built-in UI strings** (empty states, retry/cancel buttons, the App Store overlay error alert, the home-screen card, VoiceOver labels) — shipped inside the package as a String Catalog (`Sources/CrossPromoKit/Resources/Localizable.xcstrings`), so they stay localized regardless of the host app's bundle.
 
-Bundled UI languages: English (source), Korean, Japanese. Other locales fall back to English.
+Bundled UI languages: English (source), Korean, Japanese, Arabic, German, Spanish, Thai. Other locales fall back to English.
 
 To add a language, open `Localizable.xcstrings` in Xcode, add the locale, and translate the entries — no code changes are needed.
+
+## Privacy
+
+The package ships a privacy manifest (`Sources/CrossPromoKit/Resources/PrivacyInfo.xcprivacy`)
+that Xcode merges into your app's privacy report:
+
+- **No tracking** and no tracking domains.
+- **No collected data types.** `PromoEvent`s are handed to your `PromoEventDelegate`;
+  the package stores and sends nothing itself. Whatever your analytics SDK does with
+  those events belongs in your app's own manifest.
+- **Required-reason API:** UserDefaults, reason `CA92.1` — the catalog cache and the
+  card's counters (`CrossPromoKit.card.*`: launch count, first launch date, last shown
+  app and time, per-app dismissal deadlines).
+
+When writing your app's privacy policy, note what happens on the wire:
+
+- `recordLaunch(config:)` and `MoreAppsView` request the catalog (`jsonURL`) only when the
+  cached copy is missing or older than 24 hours; icons load from each `iconURL`. These requests carry no identifiers, but
+  the device's IP address and a standard user agent reach those hosts.
+- The installed-app check (`canOpenURL` on catalog `urlScheme`s) runs on the device and
+  its result is never sent anywhere.
+- Get opens the App Store with the campaign token `cross-card-<host>` and the catalog's
+  `providerToken`; Apple attributes those installs in App Analytics.
 
 ## License
 

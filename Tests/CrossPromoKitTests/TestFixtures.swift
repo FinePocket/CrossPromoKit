@@ -9,7 +9,8 @@ enum Fixture {
         name: String? = nil,
         appStoreID: String = "123456789",
         category: String = "생산성",
-        tagline: LocalizedText = LocalizedText(en: "Tagline")
+        tagline: LocalizedText = LocalizedText(en: "Tagline"),
+        urlScheme: String? = nil
     ) -> PromoApp {
         PromoApp(
             id: id,
@@ -17,7 +18,8 @@ enum Fixture {
             appStoreID: appStoreID,
             iconURL: URL(string: "https://example.com/\(id).png")!,
             category: category,
-            tagline: tagline
+            tagline: tagline,
+            urlScheme: urlScheme
         )
     }
 

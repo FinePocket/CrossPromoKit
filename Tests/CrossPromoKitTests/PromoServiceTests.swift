@@ -16,18 +16,18 @@ final class RecordingEventDelegate: PromoEventDelegate {
 @MainActor
 final class StubOverlayPresenter: AppStoreOverlayPresenting {
     enum Call: Equatable {
-        case present(appStoreID: String)
+        case present(appStoreID: String, campaign: AppStoreCampaign? = nil)
         case dismiss
     }
 
-    /// Controls whether ``present(appStoreID:)`` reports success, standing in
+    /// Controls whether ``present(appStoreID:campaign:)`` reports success, standing in
     /// for the presence or absence of a foreground window scene.
     var canPresent = true
     private(set) var calls: [Call] = []
 
     @discardableResult
-    func present(appStoreID: String) -> Bool {
-        calls.append(.present(appStoreID: appStoreID))
+    func present(appStoreID: String, campaign: AppStoreCampaign?) -> Bool {
+        calls.append(.present(appStoreID: appStoreID, campaign: campaign))
         return canPresent
     }
 
@@ -502,7 +502,7 @@ struct PromoServiceOverlayTests {
 struct SKOverlayPresenterTests {
     @Test("Presenting without a foreground window scene reports failure")
     func presentWithoutSceneFails() {
-        #expect(SKOverlayPresenter().present(appStoreID: "123") == false)
+        #expect(SKOverlayPresenter().present(appStoreID: "123", campaign: nil) == false)
     }
 
     @Test("Dismissing without a tracked overlay is a safe no-op")
@@ -512,7 +512,7 @@ struct SKOverlayPresenterTests {
         presenter.dismiss()
         presenter.dismiss()
 
-        #expect(presenter.present(appStoreID: "123") == false)
+        #expect(presenter.present(appStoreID: "123", campaign: nil) == false)
     }
 }
 

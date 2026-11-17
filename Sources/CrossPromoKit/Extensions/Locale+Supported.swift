@@ -6,6 +6,10 @@ extension Locale {
         case english = "en"
         case korean = "ko"
         case japanese = "ja"
+        case arabic = "ar"
+        case german = "de"
+        case spanish = "es"
+        case thai = "th"
     }
 
     /// Returns the current device's supported language, defaulting to English.

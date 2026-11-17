@@ -34,7 +34,7 @@ xcodebuild build -project Example/CrossPromoDemo/CrossPromoDemo.xcodeproj \
 block rendering or raise a dialog because the network failed.
 
 **No hardcoded surfaces.** User-facing strings go through `L10n` /
-`Localizable.xcstrings` (en/ko/ja). Colors, spacing, and fonts come from
+`Localizable.xcstrings` (en/ko/ja/ar/de/es/th). Colors, spacing, and fonts come from
 `WarmEmbraceTokens`.
 
 **No new dependencies.** System frameworks only; adding one needs justification

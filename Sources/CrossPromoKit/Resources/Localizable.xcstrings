@@ -1,14 +1,224 @@
 {
   "sourceLanguage" : "en",
   "strings" : {
+    "card.accessibilityLabel" : {
+      "comment" : "VoiceOver label of the card: eyebrow, app name, tagline",
+      "extractionState" : "manual",
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@: %2$@. %3$@"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@: %2$@. %3$@"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@: %2$@. %3$@"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@: %2$@. %3$@"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@：%2$@。%3$@"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@: %2$@. %3$@"
+          }
+        },
+        "th" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@: %2$@ %3$@"
+          }
+        }
+      }
+    },
+    "card.eyebrow" : {
+      "comment" : "Small label above the app name on the home-screen card",
+      "extractionState" : "manual",
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "المزيد من FinePocket"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mehr von FinePocket"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "More from FinePocket"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Más de FinePocket"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "FinePocketのほかのアプリ"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "FinePocket의 다른 앱"
+          }
+        },
+        "th" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "แอปอื่นจาก FinePocket"
+          }
+        }
+      }
+    },
+    "card.get" : {
+      "comment" : "App Store button on the home-screen card",
+      "extractionState" : "manual",
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "احصل"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Laden"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Get"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Obtener"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "入手"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "받기"
+          }
+        },
+        "th" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "รับ"
+          }
+        }
+      }
+    },
+    "card.hide" : {
+      "comment" : "VoiceOver label of the card close button",
+      "extractionState" : "manual",
+      "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "إخفاء"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ausblenden"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hide"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ocultar"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "非表示"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "숨기기"
+          }
+        },
+        "th" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ซ่อน"
+          }
+        }
+      }
+    },
     "common.cancel" : {
       "comment" : "Cancel button title",
       "extractionState" : "manual",
       "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "إلغاء"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Abbrechen"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Cancel"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cancelar"
           }
         },
         "ja" : {
@@ -22,6 +232,12 @@
             "state" : "translated",
             "value" : "취소"
           }
+        },
+        "th" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ยกเลิก"
+          }
         }
       }
     },
@@ -29,10 +245,28 @@
       "comment" : "Retry button title",
       "extractionState" : "manual",
       "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "إعادة المحاولة"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Erneut versuchen"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Try Again"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Reintentar"
           }
         },
         "ja" : {
@@ -46,6 +280,12 @@
             "state" : "translated",
             "value" : "다시 시도"
           }
+        },
+        "th" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ลองอีกครั้ง"
+          }
         }
       }
     },
@@ -53,10 +293,28 @@
       "comment" : "Message shown when the catalog loaded but holds no apps to promote",
       "extractionState" : "manual",
       "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ستظهر التطبيقات الجديدة هنا عند توفرها."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Neue Apps erscheinen hier, sobald sie verfügbar sind."
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "New apps will appear here when they're available."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Las apps nuevas aparecerán aquí cuando estén disponibles."
           }
         },
         "ja" : {
@@ -70,6 +328,12 @@
             "state" : "translated",
             "value" : "새로운 앱이 추가되면 여기에 표시됩니다."
           }
+        },
+        "th" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "แอปใหม่จะแสดงที่นี่เมื่อพร้อมใช้งาน"
+          }
         }
       }
     },
@@ -77,10 +341,28 @@
       "comment" : "Title shown when the catalog loaded but holds no apps to promote",
       "extractionState" : "manual",
       "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "لا توجد تطبيقات بعد"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Noch keine Apps"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "No Apps Yet"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aún no hay apps"
           }
         },
         "ja" : {
@@ -94,6 +376,12 @@
             "state" : "translated",
             "value" : "소개할 앱이 없습니다"
           }
+        },
+        "th" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ยังไม่มีแอป"
+          }
         }
       }
     },
@@ -101,10 +389,28 @@
       "comment" : "Message shown when the device is offline",
       "extractionState" : "manual",
       "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ستُحمَّل قائمة التطبيقات عند عودتك إلى الإنترنت."
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Die App-Liste wird geladen, sobald du wieder online bist."
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "The app list will load once you're back online."
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La lista de apps se cargará cuando vuelvas a estar en línea."
           }
         },
         "ja" : {
@@ -118,6 +424,12 @@
             "state" : "translated",
             "value" : "인터넷에 연결되면 앱 목록을 불러올 수 있습니다."
           }
+        },
+        "th" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "รายการแอปจะโหลดเมื่อคุณกลับมาออนไลน์"
+          }
         }
       }
     },
@@ -125,10 +437,28 @@
       "comment" : "Title shown when the device is offline",
       "extractionState" : "manual",
       "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "أنت غير متصل"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Du bist offline"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "You're Offline"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sin conexión"
           }
         },
         "ja" : {
@@ -142,6 +472,12 @@
             "state" : "translated",
             "value" : "오프라인 상태입니다"
           }
+        },
+        "th" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "คุณออฟไลน์อยู่"
+          }
         }
       }
     },
@@ -149,10 +485,28 @@
       "comment" : "Message of the alert shown when the in-app App Store overlay fails to present",
       "extractionState" : "manual",
       "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "تعذّر عرض App Store داخل التطبيق. هل تريد فتحه في تطبيق App Store بدلاً من ذلك؟"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Der App Store konnte nicht in der App angezeigt werden. Stattdessen in der App Store-App öffnen?"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "The in-app App Store couldn't be shown. Open it in the App Store app instead?"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No se pudo mostrar el App Store dentro de la app. ¿Quieres abrirlo en la app App Store?"
           }
         },
         "ja" : {
@@ -166,6 +520,12 @@
             "state" : "translated",
             "value" : "인앱 App Store를 표시할 수 없습니다. App Store 앱에서 직접 열까요?"
           }
+        },
+        "th" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ไม่สามารถแสดง App Store ในแอปได้ ต้องการเปิดในแอป App Store แทนไหม"
+          }
         }
       }
     },
@@ -173,10 +533,28 @@
       "comment" : "Button that opens the App Store app directly",
       "extractionState" : "manual",
       "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "فتح في App Store"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Im App Store öffnen"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Open in App Store"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Abrir en App Store"
           }
         },
         "ja" : {
@@ -190,6 +568,12 @@
             "state" : "translated",
             "value" : "App Store에서 열기"
           }
+        },
+        "th" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "เปิดใน App Store"
+          }
         }
       }
     },
@@ -197,10 +581,28 @@
       "comment" : "Title of the alert shown when the in-app App Store overlay fails to present",
       "extractionState" : "manual",
       "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "تعذّر فتح App Store"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "App Store konnte nicht geöffnet werden"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Couldn't Open the App Store"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No se pudo abrir el App Store"
           }
         },
         "ja" : {
@@ -214,6 +616,12 @@
             "state" : "translated",
             "value" : "App Store를 열 수 없습니다"
           }
+        },
+        "th" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "เปิด App Store ไม่ได้"
+          }
         }
       }
     },
@@ -221,10 +629,28 @@
       "comment" : "VoiceOver hint describing what activating an app row does",
       "extractionState" : "manual",
       "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "يفتح هذا التطبيق في App Store"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Öffnet diese App im App Store"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Opens this app on the App Store"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Abre esta app en el App Store"
           }
         },
         "ja" : {
@@ -238,6 +664,12 @@
             "state" : "translated",
             "value" : "App Store에서 이 앱을 엽니다"
           }
+        },
+        "th" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "เปิดแอปนี้ใน App Store"
+          }
         }
       }
     },
@@ -245,10 +677,28 @@
       "comment" : "VoiceOver label for an app row: %1$@ app name, %2$@ category, %3$@ tagline",
       "extractionState" : "manual",
       "localizations" : {
+        "ar" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@، فئة %2$@، %3$@"
+          }
+        },
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@, Kategorie %2$@, %3$@"
+          }
+        },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "%1$@, %2$@ category, %3$@"
+          }
+        },
+        "es" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@, categoría %2$@, %3$@"
           }
         },
         "ja" : {
@@ -261,6 +711,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "%1$@, %2$@ 카테고리, %3$@"
+          }
+        },
+        "th" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@, หมวด %2$@, %3$@"
           }
         }
       }

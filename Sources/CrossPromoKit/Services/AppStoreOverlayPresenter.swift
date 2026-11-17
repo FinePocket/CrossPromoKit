@@ -1,6 +1,19 @@
 import StoreKit
 import UIKit
 
+/// App Analytics campaign identifiers (`ct` / `pt`) for an App Store link.
+struct AppStoreCampaign: Equatable, Sendable {
+    let campaignToken: String
+    let providerToken: String?
+
+    /// Query items for a plain App Store URL, used when the overlay cannot show.
+    var queryItems: [URLQueryItem] {
+        var items = [URLQueryItem(name: "ct", value: campaignToken)]
+        if let providerToken { items.append(URLQueryItem(name: "pt", value: providerToken)) }
+        return items
+    }
+}
+
 /// Presents and dismisses the App Store overlay for a single app.
 ///
 /// Abstracted behind a protocol so ``PromoService`` can be exercised in tests,
@@ -8,11 +21,13 @@ import UIKit
 @MainActor
 protocol AppStoreOverlayPresenting: AnyObject {
     /// Presents an overlay for the given App Store ID.
-    /// - Parameter appStoreID: The numeric App Store identifier.
+    /// - Parameters:
+    ///   - appStoreID: The numeric App Store identifier.
+    ///   - campaign: App Analytics campaign attached to the overlay, or `nil`.
     /// - Returns: `true` when an overlay was presented, `false` when there was
     ///   no foreground window scene to present it in.
     @discardableResult
-    func present(appStoreID: String) -> Bool
+    func present(appStoreID: String, campaign: AppStoreCampaign?) -> Bool
 
     /// Dismisses the overlay presented by this presenter, if one is tracked.
     func dismiss()
@@ -31,10 +46,12 @@ final class SKOverlayPresenter: AppStoreOverlayPresenting {
     // MARK: - Internal Methods
 
     @discardableResult
-    func present(appStoreID: String) -> Bool {
+    func present(appStoreID: String, campaign: AppStoreCampaign?) -> Bool {
         guard let windowScene = Self.foregroundWindowScene() else { return false }
 
         let configuration = SKOverlay.AppConfiguration(appIdentifier: appStoreID, position: .bottom)
+        configuration.campaignToken = campaign?.campaignToken
+        configuration.providerToken = campaign?.providerToken
         let overlay = SKOverlay(configuration: configuration)
         presented = (overlay, windowScene)
         overlay.present(in: windowScene)

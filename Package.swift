@@ -19,7 +19,8 @@ let package = Package(
         .target(
             name: "CrossPromoKit",
             resources: [
-                .process("Resources/Localizable.xcstrings")
+                .process("Resources/Localizable.xcstrings"),
+                .copy("Resources/PrivacyInfo.xcprivacy")
             ]
         ),
         .testTarget(

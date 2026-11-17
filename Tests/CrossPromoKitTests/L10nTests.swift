@@ -17,10 +17,14 @@ struct L10nTests {
         "overlayError.message",
         "overlayError.openInAppStore",
         "promoRow.accessibilityLabel",
-        "promoRow.accessibilityHint"
+        "promoRow.accessibilityHint",
+        "card.eyebrow",
+        "card.get",
+        "card.hide",
+        "card.accessibilityLabel"
     ]
 
-    @Test("every key resolves in en, ko and ja")
+    @Test("every key resolves in every supported language")
     func allKeysTranslatedInEveryLanguage() throws {
         for language in Locale.SupportedLanguage.allCases {
             let path = try #require(
@@ -44,7 +48,9 @@ struct L10nTests {
             L10n.offlineTitle, L10n.offlineMessage,
             L10n.overlayErrorTitle, L10n.overlayErrorMessage, L10n.overlayErrorOpenInAppStore,
             L10n.promoRowLabel(name: "FineBill", category: "Finance", tagline: "Track bills"),
-            L10n.promoRowHint
+            L10n.promoRowHint,
+            L10n.cardEyebrow, L10n.cardGet, L10n.cardHide,
+            L10n.cardLabel(name: "FineBill", tagline: "Track bills")
         ]
         #expect(values.count == Self.keys.count)
         for (value, key) in zip(values, Self.keys) {
@@ -59,7 +65,11 @@ struct L10nTests {
     private static let networkFailureTerms = [
         "en": ["network", "connection", "couldn't load", "try again"],
         "ko": ["네트워크", "연결", "불러올 수 없"],
-        "ja": ["ネットワーク", "接続", "読み込めませんでした"]
+        "ja": ["ネットワーク", "接続", "読み込めませんでした"],
+        "ar": ["الشبكة", "الاتصال", "تعذر التحميل"],
+        "de": ["netzwerk", "verbindung", "nicht laden"],
+        "es": ["red", "conexión", "no se pudo cargar"],
+        "th": ["เครือข่าย", "การเชื่อมต่อ", "โหลดไม่ได้"]
     ]
 
     @Test("the no-apps copy does not blame the network, and differs from the offline copy")

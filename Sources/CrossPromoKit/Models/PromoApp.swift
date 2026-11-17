@@ -14,6 +14,10 @@ public struct PromoApp: Codable, Sendable, Identifiable, Equatable {
     public let category: String
     /// Localized tagline object
     public let tagline: LocalizedText
+    /// URL scheme the app registers (e.g. `"finebill"`). When present, the
+    /// ``CrossPromoCard`` skips the app if `canOpenURL("<scheme>://")` succeeds,
+    /// which requires the host to list the scheme in `LSApplicationQueriesSchemes`.
+    public let urlScheme: String?
 
     public init(
         id: String,
@@ -21,7 +25,8 @@ public struct PromoApp: Codable, Sendable, Identifiable, Equatable {
         appStoreID: String,
         iconURL: URL,
         category: String,
-        tagline: LocalizedText
+        tagline: LocalizedText,
+        urlScheme: String? = nil
     ) {
         self.id = id
         self.name = name
@@ -29,5 +34,6 @@ public struct PromoApp: Codable, Sendable, Identifiable, Equatable {
         self.iconURL = iconURL
         self.category = category
         self.tagline = tagline
+        self.urlScheme = urlScheme
     }
 }

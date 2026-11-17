@@ -34,6 +34,16 @@ struct LocalizedTextTests {
         #expect(full.localized == full.localized(for: Locale.current.supportedLanguage))
     }
 
+    @Test("Resolves the added languages and falls back to English")
+    func resolvesAddedLanguages() {
+        let text = LocalizedText(en: "Bills", ar: "فواتير", de: "Rechnungen", es: "Facturas", th: "บิล")
+        #expect(text.localized(for: .arabic) == "فواتير")
+        #expect(text.localized(for: .german) == "Rechnungen")
+        #expect(text.localized(for: .spanish) == "Facturas")
+        #expect(text.localized(for: .thai) == "บิล")
+        #expect(LocalizedText(en: "Bills").localized(for: .thai) == "Bills")
+    }
+
     @Test("Decodes from JSON with optional translations omitted")
     func decodesFromJSON() throws {
         let json = Data(#"{"en":"Hello","ko":"안녕"}"#.utf8)

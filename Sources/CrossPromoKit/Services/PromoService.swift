@@ -26,6 +26,13 @@ public final class PromoService {
     /// App ID for the overlay error alert
     public private(set) var overlayErrorAppID: String?
 
+    /// Card rules from the last loaded catalog. `nil` until a catalog with a
+    /// `card` block loads, which keeps ``CrossPromoCard`` hidden.
+    public private(set) var cardRules: CardRules?
+
+    /// App Store provider token (`pt`) from the last loaded catalog.
+    public private(set) var providerToken: String?
+
     // MARK: - Private Properties
 
     private let config: PromoConfig
@@ -109,8 +116,7 @@ public final class PromoService {
 
         // Tier 0: An unexpired cache answers without touching the network.
         if !ignoringValidCache, let validCatalog = await cacheManager.loadIfValid() {
-            catalog = validCatalog
-            apps = filterApps(from: validCatalog)
+            apply(validCatalog)
             isLoading = false
             return
         }
@@ -118,8 +124,7 @@ public final class PromoService {
         // Tier 1: Try network fetch
         do {
             let fetchedCatalog = try await networkClient.fetchCatalog(from: config.jsonURL)
-            catalog = fetchedCatalog
-            apps = filterApps(from: fetchedCatalog)
+            apply(fetchedCatalog)
 
             // Save to cache on successful network fetch
             await cacheManager.save(fetchedCatalog)
@@ -127,8 +132,7 @@ public final class PromoService {
             // Tier 2: Fall back to cached data, even if expired - stale
             // promotions are more useful than an empty list while offline
             if let cachedCatalog = await cacheManager.load() {
-                catalog = cachedCatalog
-                apps = filterApps(from: cachedCatalog)
+                apply(cachedCatalog)
                 // Don't set error - we have cached data to show
             } else {
                 // Tier 3: Empty state with error
@@ -178,6 +182,23 @@ public final class PromoService {
         emit(.impression(appID: app.id))
     }
 
+    /// Handles a tap on the ``CrossPromoCard``'s Get button.
+    ///
+    /// Same as ``handleAppTap(_:)`` but tags the App Store visit with the card
+    /// campaign (`ct=cross-card-<host>`, plus the catalog's `pt`). When the
+    /// overlay cannot show, the App Store app opens with the same campaign
+    /// instead of raising an alert over the host's home screen.
+    /// - Parameter app: The app shown on the card
+    public func handleCardTap(_ app: PromoApp) {
+        emit(.tap(appID: app.id))
+        overlayPresenter.dismiss()
+        let campaign = cardCampaign
+        guard overlayPresenter.present(appStoreID: app.appStoreID, campaign: campaign) else {
+            openAppStoreDirectly(appStoreID: app.appStoreID, campaign: campaign)
+            return
+        }
+    }
+
     /// Dismisses the App Store overlay this service is currently presenting, if any.
     ///
     /// The overlay lives on the window scene rather than on any particular view,
@@ -197,12 +218,24 @@ public final class PromoService {
     /// Opens the App Store directly for the specified app.
     /// - Parameter appStoreID: The App Store ID of the app
     public func openAppStoreDirectly(appStoreID: String) {
-        let urlString = "https://apps.apple.com/app/id\(appStoreID)"
-        guard let url = URL(string: urlString) else { return }
-        UIApplication.shared.open(url)
+        openAppStoreDirectly(appStoreID: appStoreID, campaign: nil)
     }
 
     // MARK: - Internal Methods
+
+    /// Campaign for card taps: `cross-card-` plus the host ID's last
+    /// component, lowercased (`app.finepocket.FineBill` → `cross-card-finebill`).
+    var cardCampaign: AppStoreCampaign {
+        let host = config.currentAppID.split(separator: ".").last.map(String.init) ?? config.currentAppID
+        return AppStoreCampaign(campaignToken: "cross-card-\(host.lowercased())", providerToken: providerToken)
+    }
+
+    /// App Store URL for an app, carrying the campaign query when given.
+    static func appStoreURL(appStoreID: String, campaign: AppStoreCampaign?) -> URL? {
+        var components = URLComponents(string: "https://apps.apple.com/app/id\(appStoreID)")
+        if let campaign { components?.queryItems = campaign.queryItems }
+        return components?.url
+    }
 
     /// Filters the catalog down to the apps this host app should promote.
     ///
@@ -242,12 +275,24 @@ public final class PromoService {
         return task
     }
 
+    private func apply(_ loaded: AppCatalog) {
+        catalog = loaded
+        apps = filterApps(from: loaded)
+        cardRules = loaded.card
+        providerToken = loaded.providerToken
+    }
+
+    private func openAppStoreDirectly(appStoreID: String, campaign: AppStoreCampaign?) {
+        guard let url = Self.appStoreURL(appStoreID: appStoreID, campaign: campaign) else { return }
+        UIApplication.shared.open(url)
+    }
+
     private func presentAppStoreOverlay(for app: PromoApp) {
         // Tapping a second app while an overlay is up would otherwise stack a new
         // overlay on top of the old one, so retire the previous one first.
         overlayPresenter.dismiss()
 
-        guard overlayPresenter.present(appStoreID: app.appStoreID) else {
+        guard overlayPresenter.present(appStoreID: app.appStoreID, campaign: nil) else {
             handleOverlayError(for: app)
             return
         }

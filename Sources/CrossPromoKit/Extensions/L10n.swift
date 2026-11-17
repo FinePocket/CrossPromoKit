@@ -4,7 +4,7 @@ import Foundation
 ///
 /// Values are resolved from the package's own `Localizable.xcstrings`
 /// (`Bundle.module`) so they stay localized regardless of the host app's bundle.
-/// Supported languages: en (source), ko, ja.
+/// Supported languages: en (source), ko, ja, ar, de, es, th.
 enum L10n {
     /// "Try Again" — retry button title.
     static var retry: String { string("common.retry") }
@@ -41,6 +41,20 @@ enum L10n {
 
     /// VoiceOver hint describing what activating a promo app row does.
     static var promoRowHint: String { string("promoRow.accessibilityHint") }
+
+    /// "More from FinePocket" — small label above the app name on the card.
+    static var cardEyebrow: String { string("card.eyebrow") }
+
+    /// "Get" — the card's App Store button.
+    static var cardGet: String { string("card.get") }
+
+    /// "Hide" — VoiceOver label of the card's close button.
+    static var cardHide: String { string("card.hide") }
+
+    /// VoiceOver label for the card's info area: eyebrow, app name, tagline.
+    static func cardLabel(name: String, tagline: String) -> String {
+        String(format: string("card.accessibilityLabel"), locale: .current, cardEyebrow, name, tagline)
+    }
 
     private static func string(_ key: String) -> String {
         String(localized: String.LocalizationValue(key), bundle: .module)

@@ -173,6 +173,52 @@ MoreAppsView(config: config, eventDelegate: handler)
 - `myapp2`는 `myapp1`만 표시
 - 규칙이 없는 앱은 모든 다른 앱을 표시
 
+### 홈 화면 카드
+
+`CrossPromoCard`는 화면 콘텐츠 안에 넣는 닫을 수 있는 카드 한 장입니다. 홈 목록의
+섹션 사이나 작업을 마친 결과 아래에 둡니다. 한 번에 다른 앱 하나만 소개하고 방해하지
+않도록 동작합니다:
+
+- 실행 `minLaunches`회째 **또는** 첫 실행 후 `minDaysSinceInstall`일이 지나야 보입니다
+- `intervalDays`마다 많아야 한 세션만 보이고, 한 세션 안에서는 같은 앱이 유지됩니다
+- 닫으면 그 앱은 `dismissDays` 동안 숨겨집니다
+- 카탈로그 순서로 번갈아 고르며 이미 설치한 앱은 건너뜁니다(아래 참고)
+- `isHidden: true`(결제 사용자에게 넘기세요)면 아무것도 그리지 않고 노출도 세지 않습니다
+
+```swift
+// 1. 실행마다 한 번 — 실행 횟수를 세고 카탈로그를 미리 받아 둡니다.
+@main
+struct MyApp: App {
+    init() {
+        CrossPromoCard.recordLaunch(config: .myApp)
+    }
+    // ...
+}
+
+// 2. 카드를 둘 자리에. 보여 줄 카드가 없으면 아무것도 그리지 않아
+//    List에 빈 행이 남지 않습니다.
+CrossPromoCard(config: .myApp, isHidden: store.isPro, accent: .accentColor, eventDelegate: analytics)
+```
+
+받기를 누르면 앱 안 App Store 오버레이가 캠페인 토큰 `cross-card-<호스트>`
+(`currentAppID`의 마지막 구성요소를 소문자로)와 카탈로그의 `providerToken`을 달고
+열리므로, App Store Connect에서 호스트 앱별 설치를 볼 수 있습니다.
+
+카드는 카탈로그의 `card` 객체로 원격 설정합니다. `"enabled": false`면 앱 업데이트
+없이 모든 앱에서 꺼집니다. `card` 객체가 없으면 카드는 보이지 않습니다.
+
+**설치한 앱 건너뛰기.** 카탈로그의 각 앱에 `urlScheme`을 넣고, 호스트 앱
+`Info.plist`에 다른 앱들의 스킴을 적어야 합니다. 적지 않으면 `canOpenURL`이 항상
+`false`를 돌려줘 이미 설치한 앱도 소개됩니다:
+
+```xml
+<key>LSApplicationQueriesSchemes</key>
+<array>
+    <string>finebill</string>
+    <string>whospoke</string>
+</array>
+```
+
 ## API 레퍼런스
 
 ### MoreAppsView
@@ -221,10 +267,13 @@ class PromoService {
     var isLoading: Bool       // 로딩 상태
     var error: Error?         // 오류 상태
     weak var eventDelegate: PromoEventDelegate? // 분석 델리게이트 (weak — 호출자가 유지)
+    var cardRules: CardRules? // 카탈로그 `card` 객체, 없으면 nil
+    var providerToken: String? // 카탈로그 `providerToken`
 
     func loadApps() async     // 유효한 캐시 → 네트워크 → 만료된 캐시 순
     func forceRefresh() async // 항상 네트워크에서 다시 로드
     func handleAppTap(_ app: PromoApp)        // 오버레이 표시
+    func handleCardTap(_ app: PromoApp)       // 카드 캠페인 토큰을 단 오버레이
     func handleAppImpression(_ app: PromoApp) // 노출 추적
     func dismissOverlay()     // 이 서비스가 띄운 App Store 오버레이 정리
 }
@@ -315,13 +364,22 @@ enum PromoEvent {
       "category": "string",     // 카테고리 라벨
       "tagline": {              // 지역화된 설명
         "en": "string",
-        "ko": "string"
-      }
+        "ko": "string"          // ja, ar, de, es, th도 가능
+      },
+      "urlScheme": "string"     // 선택 — 설치돼 있으면 카드에서 건너뜀
     }
   ],
   "promoRules": {               // 선택 사항
     "appId": ["허용된", "앱", "ID들"]
-  }
+  },
+  "card": {                     // 선택 — CrossPromoCard 규칙, 빠진 키는 아래 기본값
+    "enabled": true,
+    "minLaunches": 5,
+    "minDaysSinceInstall": 3,
+    "intervalDays": 7,
+    "dismissDays": 30
+  },
+  "providerToken": "string"     // 선택 — 카드 캠페인 링크용 App Store pt
 }
 ```
 
@@ -344,16 +402,16 @@ enum PromoEvent {
 두 종류의 지역화가 서로 독립적으로 동작합니다:
 
 - **카탈로그 콘텐츠**(`tagline`) — 직접 호스팅하는 JSON에서 제공하며, 언어 코드를
-  키로 사용합니다. `en`은 필수이고 `ko`, `ja`는 선택이며, 기기 로케일에 해당하는
+  키로 사용합니다. `en`은 필수이고 `ko`, `ja`, `ar`, `de`, `es`, `th`는 선택이며, 기기 로케일에 해당하는
   값이 없으면 영어로 폴백됩니다. `category`는 지역화 대상이 아니라 JSON에 적은
   문자열이 그대로 표시되므로, 언어별로 다르게 보여주려면 카탈로그 자체를 분리해야
   합니다.
 - **내장 UI 문자열**(빈 상태 문구, 다시 시도/취소 버튼, App Store 오버레이 오류
-  알림, VoiceOver 레이블) — 패키지 안에 String Catalog
+  알림, 홈 화면 카드, VoiceOver 레이블) — 패키지 안에 String Catalog
   (`Sources/CrossPromoKit/Resources/Localizable.xcstrings`)로 포함되어 있어 호스트
   앱의 번들 설정과 무관하게 지역화됩니다.
 
-기본 제공 UI 언어: 영어(소스), 한국어, 일본어. 그 외 로케일은 영어로 폴백됩니다.
+기본 제공 UI 언어: 영어(소스), 한국어, 일본어, 아랍어, 독일어, 스페인어, 태국어. 그 외 로케일은 영어로 폴백됩니다.
 
 언어를 추가하려면 Xcode에서 `Localizable.xcstrings`를 열어 로케일을 추가하고 항목을
 번역하면 됩니다. 코드 변경은 필요 없습니다.

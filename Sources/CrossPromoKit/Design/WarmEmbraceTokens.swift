@@ -17,6 +17,10 @@ public enum WarmEmbraceTokens {
     /// Secondary background color
     public static let secondaryBackground = Color(.secondarySystemBackground)
 
+    /// Translucent fill behind the home-screen card, so it reads on white,
+    /// tinted, and dark host backgrounds alike
+    public static let cardFill = Color(.quaternarySystemFill)
+
     /// Primary text color
     public static let primaryText = Color(.label)
 
@@ -55,6 +59,12 @@ public enum WarmEmbraceTokens {
 
     /// App icon size in list rows (48pt)
     public static let appIconSize: CGFloat = 48
+
+    /// App icon size on the home-screen card (46pt)
+    public static let cardIconSize: CGFloat = 46
+
+    /// Corner radius of the home-screen card (18pt)
+    public static let cornerRadiusCard: CGFloat = 18
 
     /// Placeholder icon size (24pt)
     public static let placeholderIconSize: CGFloat = 24

@@ -174,6 +174,53 @@ In this example:
 - `myapp2` will only show `myapp1`
 - Apps without rules show all other apps
 
+### Home-Screen Card
+
+`CrossPromoCard` is a single dismissible card you place inside a screen's content
+— between sections of a home list, or below the result of a finished task. It
+introduces one other app at a time and stays out of the way:
+
+- shows only after `minLaunches` launches **or** `minDaysSinceInstall` days
+- at most one session every `intervalDays`; within a session the same app stays
+- closing it hides that app for `dismissDays`
+- apps rotate in catalog order, skipping already-installed apps (see below)
+- `isHidden: true` (pass it for paying users) draws nothing and counts nothing
+
+```swift
+// 1. Once per launch — counts the launch and prefetches the catalog.
+@main
+struct MyApp: App {
+    init() {
+        CrossPromoCard.recordLaunch(config: .myApp)
+    }
+    // ...
+}
+
+// 2. Wherever the card belongs. It renders nothing until a card is due,
+//    so it leaves no empty row in a List.
+CrossPromoCard(config: .myApp, isHidden: store.isPro, accent: .accentColor, eventDelegate: analytics)
+```
+
+Get opens the in-app App Store overlay tagged with the campaign token
+`cross-card-<host>` (the last component of `currentAppID`, lowercased) and the
+catalog's `providerToken`, so App Store Connect shows installs per host app.
+
+The card is configured remotely by the catalog's `card` object — set
+`"enabled": false` to switch it off everywhere without an app update. Without a
+`card` object the card never shows.
+
+**Skipping installed apps.** Give each app a `urlScheme` in the catalog and list
+the other apps' schemes in the host's `Info.plist`; otherwise `canOpenURL` always
+returns `false` and installed apps are still promoted:
+
+```xml
+<key>LSApplicationQueriesSchemes</key>
+<array>
+    <string>finebill</string>
+    <string>whospoke</string>
+</array>
+```
+
 ## API Reference
 
 ### MoreAppsView
@@ -222,10 +269,13 @@ class PromoService {
     var isLoading: Bool       // Loading state
     var error: Error?         // Error state
     weak var eventDelegate: PromoEventDelegate? // Analytics delegate (weak — retain it yourself)
+    var cardRules: CardRules? // Catalog `card` block, nil when absent
+    var providerToken: String? // Catalog `providerToken`
 
     func loadApps() async     // Valid cache, else network, else stale cache
     func forceRefresh() async // Always reload from the network
     func handleAppTap(_ app: PromoApp)        // Trigger overlay
+    func handleCardTap(_ app: PromoApp)       // Overlay tagged with the card campaign
     func handleAppImpression(_ app: PromoApp) // Track impression
     func dismissOverlay()     // Dismiss the App Store overlay this service presented
 }
@@ -316,13 +366,22 @@ enum PromoEvent {
       "category": "string",     // Category label
       "tagline": {              // Localized descriptions
         "en": "string",
-        "ko": "string"
-      }
+        "ko": "string"          // also ja, ar, de, es, th
+      },
+      "urlScheme": "string"     // Optional — skips the app on the card when installed
     }
   ],
   "promoRules": {               // Optional
     "appId": ["allowed", "app", "ids"]
-  }
+  },
+  "card": {                     // Optional — CrossPromoCard rules; missing keys use these defaults
+    "enabled": true,
+    "minLaunches": 5,
+    "minDaysSinceInstall": 3,
+    "intervalDays": 7,
+    "dismissDays": 30
+  },
+  "providerToken": "string"     // Optional — App Store pt for card campaign links
 }
 ```
 

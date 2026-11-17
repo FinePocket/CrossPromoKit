@@ -1,7 +1,8 @@
 import Foundation
 
 /// Localized text container with English as required fallback.
-/// Supports Korean (ko), English (en), and Japanese (ja).
+/// Supports English (en), Korean (ko), Japanese (ja), Arabic (ar), German (de),
+/// Spanish (es), and Thai (th).
 public struct LocalizedText: Codable, Sendable, Equatable {
     /// English text (required fallback)
     public let en: String
@@ -9,11 +10,31 @@ public struct LocalizedText: Codable, Sendable, Equatable {
     public let ko: String?
     /// Japanese text (optional)
     public let ja: String?
+    /// Arabic text (optional)
+    public let ar: String?
+    /// German text (optional)
+    public let de: String?
+    /// Spanish text (optional)
+    public let es: String?
+    /// Thai text (optional)
+    public let th: String?
 
-    public init(en: String, ko: String? = nil, ja: String? = nil) {
+    public init(
+        en: String,
+        ko: String? = nil,
+        ja: String? = nil,
+        ar: String? = nil,
+        de: String? = nil,
+        es: String? = nil,
+        th: String? = nil
+    ) {
         self.en = en
         self.ko = ko
         self.ja = ja
+        self.ar = ar
+        self.de = de
+        self.es = es
+        self.th = th
     }
 
     /// Returns the appropriate text based on device locale, falling back to English.
@@ -30,6 +51,14 @@ public struct LocalizedText: Codable, Sendable, Equatable {
             return ko ?? en
         case .japanese:
             return ja ?? en
+        case .arabic:
+            return ar ?? en
+        case .german:
+            return de ?? en
+        case .spanish:
+            return es ?? en
+        case .thai:
+            return th ?? en
         case .english:
             return en
         }

@@ -9,7 +9,11 @@ struct LocaleSupportedTests {
         ("ko_KR", .korean),
         ("ja_JP", .japanese),
         ("ko", .korean),
-        ("en", .english)
+        ("en", .english),
+        ("ar_SA", .arabic),
+        ("de_DE", .german),
+        ("es_ES", .spanish),
+        ("th_TH", .thai)
     ])
     func mapsSupportedIdentifiers(identifier: String, expected: Locale.SupportedLanguage) {
         #expect(Locale(identifier: identifier).supportedLanguage == expected)
@@ -17,7 +21,7 @@ struct LocaleSupportedTests {
     }
 
     @Test("Falls back to English for unsupported languages", arguments: [
-        "fr_FR", "de_DE", "zh_Hans_CN", "es_ES"
+        "fr_FR", "it_IT", "zh_Hans_CN", "pt_BR"
     ])
     func fallsBackToEnglish(identifier: String) {
         let locale = Locale(identifier: identifier)
@@ -32,8 +36,8 @@ struct LocaleSupportedTests {
         #expect(Locale(identifier: "ko_KP").supportedLanguage == .korean)
     }
 
-    @Test("SupportedLanguage covers exactly en/ko/ja")
+    @Test("SupportedLanguage covers exactly en/ko/ja/ar/de/es/th")
     func allCasesAreStable() {
-        #expect(Set(Locale.SupportedLanguage.allCases.map(\.rawValue)) == ["en", "ko", "ja"])
+        #expect(Set(Locale.SupportedLanguage.allCases.map(\.rawValue)) == ["en", "ko", "ja", "ar", "de", "es", "th"])
     }
 }

@@ -52,14 +52,14 @@ SPM을 통해 CrossPromoKit을 프로젝트에 추가하세요:
 
 ```swift
 dependencies: [
-    .package(url: "https://github.com/yoonhg84/CrossPromoKit.git", from: "1.0.0")
+    .package(url: "https://github.com/FinePocket/CrossPromoKit.git", from: "1.0.0")
 ]
 ```
 
 또는 Xcode에서: File → Add Package Dependencies →
-`https://github.com/yoonhg84/CrossPromoKit.git` 입력 후 **Up to Next Major Version**
+`https://github.com/FinePocket/CrossPromoKit.git` 입력 후 **Up to Next Major Version**
 규칙으로 `1.0.0` 선택. 릴리스 노트는
-[Releases](https://github.com/yoonhg84/CrossPromoKit/releases) 페이지에 있습니다.
+[Releases](https://github.com/FinePocket/CrossPromoKit/releases) 페이지에 있습니다.
 
 ## 빠른 시작
 

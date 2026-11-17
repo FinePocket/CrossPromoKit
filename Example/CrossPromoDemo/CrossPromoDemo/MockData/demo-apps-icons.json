@@ -4,7 +4,7 @@
       "id": "remote-icon-ok",
       "name": "RemoteIcon",
       "appStoreID": "1234567895",
-      "iconURL": "https://raw.githubusercontent.com/yoonhg84/CrossPromoKit/main/docs/images/demo-screenshot.png",
+      "iconURL": "https://raw.githubusercontent.com/FinePocket/CrossPromoKit/main/docs/images/demo-screenshot.png",
       "category": "Photo & Video",
       "tagline": {
         "en": "HTTPS icon that should load over the network",
@@ -16,7 +16,7 @@
       "id": "remote-icon-404",
       "name": "MissingIcon",
       "appStoreID": "1234567896",
-      "iconURL": "https://raw.githubusercontent.com/yoonhg84/CrossPromoKit/main/docs/images/does-not-exist.png",
+      "iconURL": "https://raw.githubusercontent.com/FinePocket/CrossPromoKit/main/docs/images/does-not-exist.png",
       "category": "Utilities",
       "tagline": {
         "en": "HTTPS icon that 404s, so the placeholder is shown",

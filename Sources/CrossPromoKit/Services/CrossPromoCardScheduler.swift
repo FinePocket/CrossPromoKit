@@ -59,13 +59,19 @@ final class CrossPromoCardScheduler {
 
     /// Starts loading the catalog for `config`, reusing the service when the
     /// config is unchanged.
-    func load(config: PromoConfig) {
-        if service == nil || serviceConfig != config {
+    /// - Returns: The service doing the load, shared with ``LegalNotice``.
+    @discardableResult
+    func load(config: PromoConfig) -> PromoService {
+        let service: PromoService
+        if let current = self.service, serviceConfig == config {
+            service = current
+        } else {
             service = PromoService(config: config)
+            self.service = service
             serviceConfig = config
         }
-        let service = service
-        Task { await service?.loadApps() }
+        Task { await service.loadApps() }
+        return service
     }
 
     @ObservationIgnored private var serviceConfig: PromoConfig?

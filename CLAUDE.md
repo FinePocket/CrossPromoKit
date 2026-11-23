@@ -2,7 +2,8 @@
 
 Swift package that cross-promotes your other iOS apps from a remote JSON catalog:
 a drop-in SwiftUI `MoreAppsView` list and a dismissible home-screen `CrossPromoCard`,
-both opening the App Store via SKOverlay.
+both opening the App Store via SKOverlay. The same catalog also drives `legalNotice`,
+a one-time alert when the host's terms of use or privacy policy changed.
 
 Purpose: let a developer with several apps route users between them without
 rebuilding a promo screen per app — updating the catalog replaces redeploying the
@@ -53,7 +54,8 @@ wall-clock durations. If a test passes against deliberately broken code, it is
 not a test.
 
 **Privacy manifest stays true.** `Resources/PrivacyInfo.xcprivacy` declares no
-tracking, no collected data and UserDefaults `CA92.1`. A change that adds a
+tracking, no collected data and UserDefaults `CA92.1` (cache, `CrossPromoKit.card.*`,
+`CrossPromoKit.legal.*`). A change that adds a
 required-reason API, stores or sends data, or contacts a new host updates the
 manifest and both READMEs' Privacy section in the same PR.
 
@@ -87,5 +89,8 @@ Don't re-propose without new information.
 - **Caching the SwiftLint binary in CI** — the download is under a second, cheaper than
   an `actions/cache` round trip (PR #27).
 - **`file_header` lint rule** — no header convention; LICENSE carries the copyright (PR #23).
+- **Consent records / events for `legalNotice`** — it is a notice: versions seen stay in
+  UserDefaults, nothing is sent and no `PromoEvent` is emitted. Host policies describe
+  CrossPromoKit events as promo impressions and taps only.
 - **Built-in analytics** — events go to `PromoEventDelegate` only; choosing an analytics
   tool is the host app's job.

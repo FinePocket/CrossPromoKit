@@ -6,12 +6,13 @@ iOS 앱 포트폴리오 내 교차 프로모션을 위한 경량 Swift SDK입니
 
 ## 개요
 
-CrossPromoKit은 원격 JSON 카탈로그를 사용하여 iOS 앱 간 원활한 교차 프로모션을 지원합니다. SKOverlay를 통한 네이티브 App Store 통합이 포함된 바로 사용 가능한 SwiftUI 뷰를 제공합니다.
+CrossPromoKit은 원격 JSON 카탈로그를 사용하여 iOS 앱 간 원활한 교차 프로모션을 지원합니다. SKOverlay를 통한 네이티브 App Store 통합이 포함된 바로 사용 가능한 SwiftUI 뷰를 제공합니다. 이용약관이나 개인정보 처리방침이 바뀌었을 때 사용자에게 알리는 기능도 들어 있습니다.
 
 ## 주요 기능
 
 - **SwiftUI 네이티브**: 설정 화면에 바로 삽입 가능한 `MoreAppsView` 컴포넌트
 - **홈 화면 카드**: 한 번에 앱 하나를 소개하는 `CrossPromoCard`, 노출 규칙은 원격으로 조정
+- **약관·방침 변경 알림**: `legalNotice`가 같은 카탈로그로 이용약관·개인정보 처리방침 변경을 한 번 알림
 - **SKOverlay 통합**: 마찰 없는 앱 발견을 위한 인앱 App Store 오버레이
 - **원격 구성**: GitHub, CDN 등 어디서나 호스팅 가능한 JSON 기반 앱 카탈로그
 - **캐시 우선 로딩**: 24시간이 지나지 않은 캐시는 네트워크 요청 없이 그대로 사용하고, 네트워크 요청은 캐시 → 빈 상태로 폴백
@@ -217,6 +218,55 @@ CrossPromoCard(config: .myApp, isHidden: store.isPro, accent: .accentColor, even
 </array>
 ```
 
+### 약관·방침 변경 알림
+
+`legalNotice`는 이용약관이나 개인정보 처리방침이 바뀌었을 때 앱 업데이트 없이
+사용자에게 알립니다. 카탈로그의 `legal` 객체에 앱 ID별로 각 문서의 현재 버전을
+넣고, 루트 화면에 수정자를 붙입니다:
+
+```swift
+ContentView()
+    .legalNotice(
+        config: .myApp,
+        termsURL: URL(string: "https://example.com/terms"),
+        privacyURL: URL(string: "https://example.com/privacy")
+    )
+```
+
+카탈로그의 버전이 마지막으로 알린 버전보다 새로우면, 시스템 알림창이 바뀐 문서를
+앱 안 Safari 화면으로 열 수 있게 안내합니다.
+
+- 버전마다 **한 번만** 알립니다. 기기가 처음 본 버전은 기준값으로 저장하므로 새로
+  설치했거나 이 API를 넣은 뒤 첫 실행에서는 아무것도 뜨지 않습니다.
+- 버전은 문서를 고칠수록 오름차순으로 정렬되는 문자열이면 됩니다. ISO 날짜
+  (`"2026-11-18"`)를 쓰세요. 시행일 전에 게시하면 사전 고지가 됩니다.
+- 사용자가 알아야 할 변경에만 버전을 올리세요. 페이지의 오타 수정은 카탈로그를
+  고칠 필요가 없습니다.
+- 카드와 같은 카탈로그 로드를 쓰므로 네트워크 요청이 늘지 않습니다. 캐시가
+  24시간이라 알림이 카탈로그보다 최대 하루 늦을 수 있습니다.
+- `isEnabled: false`면 아무 일도 하지 않습니다. UI 테스트와 스크린샷 촬영에 넘기세요.
+- 고지일 뿐 동의 기록이 아닙니다. 어디에도 전송하지 않고 `PromoEvent`도 내지 않습니다.
+
+알림창을 닫아도 문서는 **읽지 않음**으로 남아, 설정 행에 표시를 달 수 있습니다:
+
+```swift
+Button {
+    LegalNotice.shared.markRead(.terms)
+    openURL(termsURL)
+} label: {
+    HStack {
+        Text("이용약관")
+        if LegalNotice.shared.isUnread(.terms) {
+            Circle().fill(.tint).frame(width: 8, height: 8)
+                .accessibilityLabel(LegalNotice.updatedLabel)   // "업데이트됨", 지역화됨
+        }
+    }
+}
+```
+
+알림창 대신 직접 만든 UI를 쓰려면 `LegalNotice.shared.pending`을 읽고, 보여 준 뒤
+`acknowledge()`를 부르세요.
+
 ## API 레퍼런스
 
 ### MoreAppsView
@@ -267,6 +317,7 @@ class PromoService {
     weak var eventDelegate: PromoEventDelegate? // 분석 델리게이트 (weak — 호출자가 유지)
     var cardRules: CardRules? // 카탈로그 `card` 객체, 없으면 nil
     var providerToken: String? // 카탈로그 `providerToken`
+    var legalVersions: LegalVersions? // 카탈로그 `legal`의 `currentAppID` 항목, 없으면 nil
 
     func loadApps() async     // 유효한 캐시 → 네트워크 → 만료된 캐시 순
     func forceRefresh() async // 항상 네트워크에서 다시 로드
@@ -347,6 +398,30 @@ enum PromoEvent {
 }
 ```
 
+### LegalNotice
+
+사용자가 어느 버전의 약관·방침까지 봤는지 기록합니다. `LegalNotice.shared`를 씁니다.
+
+```swift
+@Observable
+class LegalNotice {
+    static let shared: LegalNotice
+    static var updatedLabel: String             // 지역화된 "업데이트됨"
+
+    var pending: [LegalDocument]                // 마지막으로 알린 뒤 바뀐 문서
+    func isUnread(_ document: LegalDocument) -> Bool // 마지막으로 연 뒤 바뀌었는지
+    func acknowledge()                          // pending을 알린 것으로 기록(읽지 않음은 유지)
+    func markRead(_ document: LegalDocument)    // 문서 하나를 읽음으로 기록
+}
+
+enum LegalDocument { case terms, privacy }
+
+struct LegalVersions {                          // 카탈로그 `legal`의 앱 하나 항목
+    let terms: String?
+    let privacy: String?
+}
+```
+
 ## JSON 형식
 
 ### 전체 스키마
@@ -377,7 +452,13 @@ enum PromoEvent {
     "intervalDays": 7,
     "dismissDays": 30
   },
-  "providerToken": "string"     // 선택 — 카드 캠페인 링크용 App Store pt
+  "providerToken": "string",    // 선택 — 카드 캠페인 링크용 App Store pt
+  "legal": {                    // 선택 — legalNotice 버전, 앱 ID가 키
+    "appId": {
+      "terms": "2026-11-18",    // 선택 — 오름차순으로 정렬되는 문자열, ISO 날짜 권장
+      "privacy": "2026-11-18"   // 선택
+    }
+  }
 }
 ```
 
@@ -394,6 +475,7 @@ enum PromoEvent {
 - `tagline`은 사용자 로케일에 해당하는 값이 없으면 영어로 폴백됩니다
 - 앱은 JSON 배열 순서대로 표시됩니다
 - 현재 앱은 항상 자동으로 제외됩니다
+- `legal`은 `PromoConfig.currentAppID`가 키이고 `apps`와 별개입니다. `apps`에 없는 앱도 항목을 가질 수 있습니다. 형식이 깨진 `legal`·`card` 객체는 카탈로그 전체를 실패시키지 않고 무시됩니다
 
 ## 다국어 지원
 
@@ -405,7 +487,7 @@ enum PromoEvent {
   문자열이 그대로 표시되므로, 언어별로 다르게 보여주려면 카탈로그 자체를 분리해야
   합니다.
 - **내장 UI 문자열**(빈 상태 문구, 다시 시도/취소 버튼, App Store 오버레이 오류
-  알림, 홈 화면 카드, VoiceOver 레이블) — 패키지 안에 String Catalog
+  알림, 홈 화면 카드, 약관·방침 변경 알림창, VoiceOver 레이블) — 패키지 안에 String Catalog
   (`Sources/CrossPromoKit/Resources/Localizable.xcstrings`)로 포함되어 있어 호스트
   앱의 번들 설정과 무관하게 지역화됩니다.
 
@@ -424,17 +506,20 @@ enum PromoEvent {
   아무것도 저장·전송하지 않습니다. 분석 SDK가 그 이벤트로 하는 일은 앱 자체 매니페스트에
   선언하세요.
 - **Required Reason API:** UserDefaults, 사유 `CA92.1` — 카탈로그 캐시와 카드 카운터
-  (`CrossPromoKit.card.*`: 실행 횟수, 첫 실행일, 마지막 노출 앱·시각, 앱별 닫음 기한).
+  (`CrossPromoKit.card.*`: 실행 횟수, 첫 실행일, 마지막 노출 앱·시각, 앱별 닫음 기한)와 약관·방침 알림 기록
+  (`CrossPromoKit.legal.*`: 마지막으로 알린 문서 버전과 마지막으로 연 문서 버전).
 
 앱의 개인정보 처리방침을 쓸 때는 실제로 오가는 것을 참고하세요.
 
-- `recordLaunch(config:)`와 `MoreAppsView`는 캐시가 없거나 24시간이 지났을 때만
+- `recordLaunch(config:)`, `legalNotice`, `MoreAppsView`는 캐시가 없거나 24시간이 지났을 때만
   카탈로그(`jsonURL`)를 요청하고, 아이콘은 각 `iconURL`에서 받습니다. 식별자는 담지 않지만 기기 IP와 표준
   User-Agent가 해당 호스트에 전달됩니다.
 - 설치 여부 확인(카탈로그 `urlScheme`에 대한 `canOpenURL`)은 기기에서만 하고 결과를
   어디에도 보내지 않습니다.
 - 받기를 누르면 캠페인 토큰 `cross-card-<호스트>`와 카탈로그의 `providerToken`을 붙여
   App Store를 엽니다. Apple이 App Analytics에서 유입을 집계합니다.
+- `legalNotice`는 사용자가 알림창 버튼을 눌렀을 때만, 넘겨받은 `termsURL`·`privacyURL`을
+  `SFSafariViewController`로 엽니다. 어느 버전을 보여 줬는지는 기기에만 남습니다.
 
 ## 라이선스
 

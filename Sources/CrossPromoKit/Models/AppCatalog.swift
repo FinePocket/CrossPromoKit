@@ -11,21 +11,26 @@ public struct AppCatalog: Codable, Sendable, Equatable {
     /// App Store provider token (`pt`) attached to card taps so App Analytics can
     /// attribute installs to the card campaign. Optional.
     public let providerToken: String?
+    /// Maps app ID to the current versions of that app's legal documents, for
+    /// ``LegalNotice``. Optional.
+    public let legal: [String: LegalVersions]?
 
     public init(
         apps: [PromoApp],
         promoRules: [String: [String]]? = nil,
         card: CardRules? = nil,
-        providerToken: String? = nil
+        providerToken: String? = nil,
+        legal: [String: LegalVersions]? = nil
     ) {
         self.apps = apps
         self.promoRules = promoRules
         self.card = card
         self.providerToken = providerToken
+        self.legal = legal
     }
 
     private enum CodingKeys: String, CodingKey {
-        case apps, promoRules, card, providerToken
+        case apps, promoRules, card, providerToken, legal
     }
 
     public init(from decoder: Decoder) throws {
@@ -36,5 +41,6 @@ public struct AppCatalog: Codable, Sendable, Equatable {
         // More Apps list) down with it — it only turns the card off.
         card = try? container.decodeIfPresent(CardRules.self, forKey: .card)
         providerToken = try? container.decodeIfPresent(String.self, forKey: .providerToken)
+        legal = try? container.decodeIfPresent([String: LegalVersions].self, forKey: .legal)
     }
 }

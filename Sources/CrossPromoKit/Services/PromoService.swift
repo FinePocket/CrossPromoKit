@@ -33,6 +33,10 @@ public final class PromoService {
     /// App Store provider token (`pt`) from the last loaded catalog.
     public private(set) var providerToken: String?
 
+    /// Legal-document versions the last loaded catalog lists for
+    /// ``PromoConfig/currentAppID``. `nil` when the catalog has no entry.
+    public private(set) var legalVersions: LegalVersions?
+
     // MARK: - Private Properties
 
     private let config: PromoConfig
@@ -280,6 +284,7 @@ public final class PromoService {
         apps = filterApps(from: loaded)
         cardRules = loaded.card
         providerToken = loaded.providerToken
+        legalVersions = loaded.legal?[config.currentAppID]
     }
 
     private func openAppStoreDirectly(appStoreID: String, campaign: AppStoreCampaign?) {

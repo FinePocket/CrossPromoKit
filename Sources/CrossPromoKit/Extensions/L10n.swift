@@ -56,6 +56,32 @@ enum L10n {
         String(format: string("card.accessibilityLabel"), locale: .current, cardEyebrow, name, tagline)
     }
 
+    /// Alert title naming the changed documents.
+    static func legalTitle(for documents: [LegalDocument]) -> String {
+        switch (documents.contains(.terms), documents.contains(.privacy)) {
+        case (true, true): string("legal.title.both")
+        case (false, true): string("legal.title.privacy")
+        default: string("legal.title.terms")
+        }
+    }
+
+    /// Alert message asking the user to review the change.
+    static var legalMessage: String { string("legal.message") }
+
+    /// Alert button that opens `document`.
+    static func legalView(_ document: LegalDocument) -> String {
+        switch document {
+        case .terms: string("legal.view.terms")
+        case .privacy: string("legal.view.privacy")
+        }
+    }
+
+    /// "Close" — the alert's cancel button.
+    static var legalClose: String { string("legal.close") }
+
+    /// "Updated" — badge for a settings row whose document changed.
+    static var legalUpdated: String { string("legal.updated") }
+
     private static func string(_ key: String) -> String {
         String(localized: String.LocalizationValue(key), bundle: .module)
     }

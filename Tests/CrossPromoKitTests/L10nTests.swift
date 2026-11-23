@@ -21,7 +21,15 @@ struct L10nTests {
         "card.eyebrow",
         "card.get",
         "card.hide",
-        "card.accessibilityLabel"
+        "card.accessibilityLabel",
+        "legal.title.terms",
+        "legal.title.privacy",
+        "legal.title.both",
+        "legal.message",
+        "legal.view.terms",
+        "legal.view.privacy",
+        "legal.close",
+        "legal.updated"
     ]
 
     @Test("every key resolves in every supported language")
@@ -50,7 +58,12 @@ struct L10nTests {
             L10n.promoRowLabel(name: "FineBill", category: "Finance", tagline: "Track bills"),
             L10n.promoRowHint,
             L10n.cardEyebrow, L10n.cardGet, L10n.cardHide,
-            L10n.cardLabel(name: "FineBill", tagline: "Track bills")
+            L10n.cardLabel(name: "FineBill", tagline: "Track bills"),
+            L10n.legalTitle(for: [.terms]), L10n.legalTitle(for: [.privacy]),
+            L10n.legalTitle(for: [.terms, .privacy]),
+            L10n.legalMessage,
+            L10n.legalView(.terms), L10n.legalView(.privacy),
+            L10n.legalClose, L10n.legalUpdated
         ]
         #expect(values.count == Self.keys.count)
         for (value, key) in zip(values, Self.keys) {

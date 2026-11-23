@@ -6,12 +6,13 @@ A lightweight Swift SDK for cross-promoting your iOS apps within your app portfo
 
 ## Overview
 
-CrossPromoKit enables seamless cross-promotion between your iOS apps using a remote JSON catalog. It provides a ready-to-use SwiftUI list of your other apps and a dismissible home-screen card, both with native App Store integration via SKOverlay.
+CrossPromoKit enables seamless cross-promotion between your iOS apps using a remote JSON catalog. It provides a ready-to-use SwiftUI list of your other apps and a dismissible home-screen card, both with native App Store integration via SKOverlay. It can also tell users when your terms of use or privacy policy changed.
 
 ## Features
 
 - **SwiftUI Native**: Drop-in `MoreAppsView` component for your settings screen
 - **Home-Screen Card**: `CrossPromoCard` introduces one app at a time, with remotely tuned display rules
+- **Legal Notice**: `legalNotice` announces a changed terms of use or privacy policy once, from the same catalog
 - **SKOverlay Integration**: In-app App Store overlay for frictionless discovery
 - **Remote Configuration**: JSON-based app catalog hosted anywhere (GitHub, CDN, etc.)
 - **Cache-First Loading**: A cache younger than 24 hours is served without a network request; a fetch falls back to Cache → Empty State
@@ -219,6 +220,58 @@ returns `false` and installed apps are still promoted:
 </array>
 ```
 
+### Legal Notice
+
+`legalNotice` tells users when your terms of use or privacy policy changed, without
+an app update. Put the current version of each document in the catalog's `legal`
+object, keyed by app ID, and attach the modifier to your root screen:
+
+```swift
+ContentView()
+    .legalNotice(
+        config: .myApp,
+        termsURL: URL(string: "https://example.com/terms"),
+        privacyURL: URL(string: "https://example.com/privacy")
+    )
+```
+
+When the catalog carries a newer version than the one last announced, a system
+alert offers to open the changed document in an in-app Safari view.
+
+- Each version is announced **once**. The first version a device ever sees is its
+  baseline, so a new install — or the first launch after adopting this API —
+  shows nothing.
+- A version is any string that sorts ascending as the document is revised; use
+  ISO dates (`"2026-11-18"`). Publish it before the effective date to give
+  advance notice.
+- Bump a version only for changes users should hear about. Fixing a typo on the
+  page needs no catalog change.
+- It shares the card's catalog load, so it adds no network request. With a
+  24-hour cache the alert can trail the catalog by up to a day.
+- `isEnabled: false` does nothing at all — pass it in UI tests and screenshot runs.
+- It is a notice, not a consent record: nothing is sent anywhere and no
+  `PromoEvent` is emitted.
+
+Closing the alert leaves the document **unread**, so a settings row can still flag it:
+
+```swift
+Button {
+    LegalNotice.shared.markRead(.terms)
+    openURL(termsURL)
+} label: {
+    HStack {
+        Text("Terms of Use")
+        if LegalNotice.shared.isUnread(.terms) {
+            Circle().fill(.tint).frame(width: 8, height: 8)
+                .accessibilityLabel(LegalNotice.updatedLabel)   // "Updated", localized
+        }
+    }
+}
+```
+
+To present your own UI instead of the alert, read `LegalNotice.shared.pending`
+and call `acknowledge()` once shown.
+
 ## API Reference
 
 ### MoreAppsView
@@ -269,6 +322,7 @@ class PromoService {
     weak var eventDelegate: PromoEventDelegate? // Analytics delegate (weak — retain it yourself)
     var cardRules: CardRules? // Catalog `card` block, nil when absent
     var providerToken: String? // Catalog `providerToken`
+    var legalVersions: LegalVersions? // Catalog `legal` entry for `currentAppID`, nil when absent
 
     func loadApps() async     // Valid cache, else network, else stale cache
     func forceRefresh() async // Always reload from the network
@@ -349,6 +403,30 @@ enum PromoEvent {
 }
 ```
 
+### LegalNotice
+
+Tracks which legal-document versions the user has seen. Use `LegalNotice.shared`.
+
+```swift
+@Observable
+class LegalNotice {
+    static let shared: LegalNotice
+    static var updatedLabel: String             // Localized "Updated"
+
+    var pending: [LegalDocument]                // Changed since last announced
+    func isUnread(_ document: LegalDocument) -> Bool // Changed since last opened
+    func acknowledge()                          // Mark pending as announced (still unread)
+    func markRead(_ document: LegalDocument)    // Mark one document opened
+}
+
+enum LegalDocument { case terms, privacy }
+
+struct LegalVersions {                          // One app's entry in the catalog's `legal`
+    let terms: String?
+    let privacy: String?
+}
+```
+
 ## JSON Format
 
 ### Full Schema
@@ -379,7 +457,13 @@ enum PromoEvent {
     "intervalDays": 7,
     "dismissDays": 30
   },
-  "providerToken": "string"     // Optional — App Store pt for card campaign links
+  "providerToken": "string",    // Optional — App Store pt for card campaign links
+  "legal": {                    // Optional — legalNotice versions, keyed by app ID
+    "appId": {
+      "terms": "2026-11-18",    // Optional — any string that sorts ascending; ISO dates
+      "privacy": "2026-11-18"   // Optional
+    }
+  }
 }
 ```
 
@@ -396,13 +480,14 @@ enum PromoEvent {
 - `tagline` falls back to English if user's locale isn't available
 - Apps are displayed in JSON array order
 - The current app is always excluded automatically
+- `legal` is keyed by `PromoConfig.currentAppID` and is independent of `apps` — an app need not be listed in `apps` to have an entry. A malformed `legal` or `card` object is ignored without failing the catalog
 
 ## Localization
 
 Two things are localized independently:
 
 - **Catalog content** (`tagline`) — supplied by your JSON, keyed by language code: `en` is required, `ko`, `ja`, `ar`, `de`, `es` and `th` are optional, and a missing match for the device locale falls back to English. `category` is *not* localized — it is a plain string rendered exactly as written, so showing different category text per language means serving separate catalogs.
-- **Built-in UI strings** (empty states, retry/cancel buttons, the App Store overlay error alert, the home-screen card, VoiceOver labels) — shipped inside the package as a String Catalog (`Sources/CrossPromoKit/Resources/Localizable.xcstrings`), so they stay localized regardless of the host app's bundle.
+- **Built-in UI strings** (empty states, retry/cancel buttons, the App Store overlay error alert, the home-screen card, the legal notice alert, VoiceOver labels) — shipped inside the package as a String Catalog (`Sources/CrossPromoKit/Resources/Localizable.xcstrings`), so they stay localized regardless of the host app's bundle.
 
 Bundled UI languages: English (source), Korean, Japanese, Arabic, German, Spanish, Thai. Other locales fall back to English.
 
@@ -419,17 +504,21 @@ that Xcode merges into your app's privacy report:
   those events belongs in your app's own manifest.
 - **Required-reason API:** UserDefaults, reason `CA92.1` — the catalog cache and the
   card's counters (`CrossPromoKit.card.*`: launch count, first launch date, last shown
-  app and time, per-app dismissal deadlines).
+  app and time, per-app dismissal deadlines) and the legal notice marks
+  (`CrossPromoKit.legal.*`: the document versions last announced and last opened).
 
 When writing your app's privacy policy, note what happens on the wire:
 
-- `recordLaunch(config:)` and `MoreAppsView` request the catalog (`jsonURL`) only when the
+- `recordLaunch(config:)`, `legalNotice` and `MoreAppsView` request the catalog (`jsonURL`) only when the
   cached copy is missing or older than 24 hours; icons load from each `iconURL`. These requests carry no identifiers, but
   the device's IP address and a standard user agent reach those hosts.
 - The installed-app check (`canOpenURL` on catalog `urlScheme`s) runs on the device and
   its result is never sent anywhere.
 - Get opens the App Store with the campaign token `cross-card-<host>` and the catalog's
   `providerToken`; Apple attributes those installs in App Analytics.
+- `legalNotice` opens the `termsURL` / `privacyURL` you pass in `SFSafariViewController`,
+  only when the user taps the alert button. Which versions a user was shown stays on
+  the device.
 
 ## License
 

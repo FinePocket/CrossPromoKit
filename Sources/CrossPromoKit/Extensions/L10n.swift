@@ -82,6 +82,12 @@ enum L10n {
     /// "Updated" — badge for a settings row whose document changed.
     static var legalUpdated: String { string("legal.updated") }
 
+    /// "Skip" — survey dialog button that declines to answer.
+    static var surveySkip: String { string("survey.skip") }
+
+    /// "I'll only ask once." — survey dialog message.
+    static var surveyOnce: String { string("survey.once") }
+
     private static func string(_ key: String) -> String {
         String(localized: String.LocalizationValue(key), bundle: .module)
     }

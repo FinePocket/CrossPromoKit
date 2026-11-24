@@ -12,6 +12,7 @@ CrossPromoKit enables seamless cross-promotion between your iOS apps using a rem
 
 - **SwiftUI Native**: Drop-in `MoreAppsView` component for your settings screen
 - **Home-Screen Card**: `CrossPromoCard` introduces one app at a time, with remotely tuned display rules
+- **Survey**: `survey` asks one question once (shuffled choices, "Other" pinned last); the host decides when and where the answer goes
 - **Legal Notice**: `legalNotice` announces a changed terms of use or privacy policy once, from the same catalog
 - **SKOverlay Integration**: In-app App Store overlay for frictionless discovery
 - **Remote Configuration**: JSON-based app catalog hosted anywhere (GitHub, CDN, etc.)
@@ -218,6 +219,31 @@ returns `false` and installed apps are still promoted:
     <string>finebill</string>
     <string>whospoke</string>
 </array>
+```
+
+### Survey
+
+`survey` shows a one-question system dialog, once per `Survey.id`. You pick the
+moment; the kit shuffles `choices`, appends `pinnedLast`, and remembers only that
+the survey was handled (answered, skipped, or dismissed). Nothing is sent — forward
+the answer yourself, e.g. as a RevenueCat attribute.
+
+```swift
+let buyReason = Survey(
+    id: "buyReason",
+    question: String(localized: "Why did you subscribe?"),
+    choices: [.init(id: "price", title: String(localized: "Fair price"))],
+    pinnedLast: [.init(id: "other", title: String(localized: "Other"))]
+)
+
+// after the purchase screen closes:
+if buyReason.shouldAsk { showSurvey = true }
+
+content.survey(buyReason, isPresented: $showSurvey) { choice in
+    #if !DEBUG
+    Purchases.shared.attribution.setAttributes(["buy_reason": choice.id])
+    #endif
+}
 ```
 
 ### Legal Notice

@@ -3,7 +3,8 @@
 Swift package that cross-promotes your other iOS apps from a remote JSON catalog:
 a drop-in SwiftUI `MoreAppsView` list and a dismissible home-screen `CrossPromoCard`,
 both opening the App Store via SKOverlay. The same catalog also drives `legalNotice`,
-a one-time alert when the host's terms of use or privacy policy changed.
+a one-time alert when the host's terms of use or privacy policy changed, and `survey`,
+a one-question ask-once dialog (host supplies question, choices and where the answer goes).
 
 Purpose: let a developer with several apps route users between them without
 rebuilding a promo screen per app — updating the catalog replaces redeploying the
@@ -55,7 +56,7 @@ not a test.
 
 **Privacy manifest stays true.** `Resources/PrivacyInfo.xcprivacy` declares no
 tracking, no collected data and UserDefaults `CA92.1` (cache, `CrossPromoKit.card.*`,
-`CrossPromoKit.legal.*`). A change that adds a
+`CrossPromoKit.legal.*`, `CrossPromoKit.survey.*` — a handled flag only, never the answer). A change that adds a
 required-reason API, stores or sends data, or contacts a new host updates the
 manifest and both READMEs' Privacy section in the same PR.
 
